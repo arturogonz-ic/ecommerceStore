@@ -1,65 +1,101 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import Link from 'next/link';
+import { useBestSellers } from '@/catalog/hooks/useBestSellers';
+import { useProducts } from '@/catalog/hooks/useProducts';
+import { useCategories } from '@/catalog/hooks/useCategories';
+import type { Product } from '@/catalog/hooks/useProducts';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+
+function ProductCard({ product }: { product: Product }) {
+  const hasDiscount = product.discount?.isActive && product.effectivePrice < product.price;
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <Link
+      href={`/catalog/${product._id}`}
+      className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+    >
+      {(product.images ?? [])[0] ? (
+        <img
+          src={`${API_URL}/${product.images[0]}`}
+          alt={product.name}
+          className="w-full h-40 object-cover"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      ) : (
+        <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+          No image
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      )}
+      <div className="p-3">
+        <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
+        <div className="mt-1 flex items-baseline gap-2">
+          <span className="text-base font-bold text-gray-900">${product.effectivePrice.toFixed(2)}</span>
+          {hasDiscount && (
+            <span className="text-xs text-gray-400 line-through">${product.price.toFixed(2)}</span>
+          )}
         </div>
-      </main>
+      </div>
+    </Link>
+  );
+}
+
+export default function HomePage() {
+  const { products: allProducts, loading: allLoading } = useProducts();
+  const { products: bestSellers, loading: bsLoading } = useBestSellers();
+  const { categories } = useCategories();
+
+  const discounted = allProducts.filter(
+    (p) => p.discount?.isActive && p.effectivePrice < p.price
+  );
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="flex gap-6">
+        <div className="flex-1 min-w-0">
+          {!allLoading && discounted.length > 0 && (
+            <section className="mb-8">
+              <h2 className="text-lg font-bold text-gray-900 mb-3">Deals of the day</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {discounted.slice(0, 8).map((p) => (
+                  <ProductCard key={p._id} product={p} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section>
+            <h2 className="text-lg font-bold text-gray-900 mb-3">Best Sellers</h2>
+            {bsLoading ? (
+              <p className="text-sm text-gray-500">Loading...</p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                {bestSellers.map((p) => (
+                  <ProductCard key={p._id} product={p} />
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+
+        <aside className="w-44 shrink-0 hidden lg:block">
+          <h3 className="text-sm font-bold text-gray-900 mb-3">Categories</h3>
+          <ul className="space-y-2">
+            {categories.length === 0 && !allLoading && (
+              <li className="text-sm text-gray-500">No categories</li>
+            )}
+            {categories.map((cat) => (
+              <li key={cat._id}>
+                <Link
+                  href={`/catalog?category=${encodeURIComponent(cat._id)}`}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  {cat.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      </div>
     </div>
   );
 }
