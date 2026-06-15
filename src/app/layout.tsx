@@ -31,6 +31,9 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){var r=sessionStorage.getItem('spa-redirect');if(r){sessionStorage.removeItem('spa-redirect');window.history.replaceState(null,'',r);}})();` }} />
+      </head>
       <body className="min-h-full flex flex-col bg-gray-50">
         <AuthProvider>
           <CartProvider>
