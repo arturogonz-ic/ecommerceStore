@@ -33,7 +33,7 @@ export default function OrderDetailPage() {
     );
   }
 
-  const hasShipping = order.status === 'shipped' || order.status === 'delivered';
+  const hasShipping = order.status === 'shipped' || order.status === 'delivered' || order.status === 'lost';
   const trackingAvailable = hasShipping && (order.shippingCarrier || order.trackingId);
 
   return (
