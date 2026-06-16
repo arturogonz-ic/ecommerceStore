@@ -27,7 +27,7 @@ export default function CartPage() {
             className={`flex items-center gap-4 px-4 py-4 ${idx < items.length - 1 ? 'border-b border-gray-100' : ''}`}
           >
             <div className="flex-1 min-w-0">
-              <Link href={`/catalog/${item.productId}`} className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate block">
+              <Link href={`/catalog/detail?id=${item.productId}`} className="text-sm font-medium text-gray-900 hover:text-blue-600 truncate block">
                 {item.name}
               </Link>
               <p className="text-xs text-gray-500 mt-0.5">${item.price.toFixed(2)} each</p>

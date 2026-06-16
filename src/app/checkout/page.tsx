@@ -48,7 +48,7 @@ export default function CheckoutPage() {
         <div className="bg-green-50 border border-green-200 rounded-lg p-8">
           <p className="text-lg font-semibold text-green-800 mb-2">Order placed!</p>
           <p className="text-sm text-gray-600 mb-4">Order ID: <span className="font-mono text-xs">{placedOrderId}</span></p>
-          <Link href={`/orders/${placedOrderId}`} className="text-blue-600 hover:underline text-sm font-medium block mb-2">
+          <Link href={`/orders/detail?id=${placedOrderId}`} className="text-blue-600 hover:underline text-sm font-medium block mb-2">
             View order details
           </Link>
           <Link href="/catalog" className="text-gray-500 hover:underline text-sm block">
