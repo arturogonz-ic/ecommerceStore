@@ -14,7 +14,7 @@ function ProductCard({ product }: { product: Product }) {
   const hasDiscount = product.discount?.isActive && product.effectivePrice < product.price;
   return (
     <Link
-      href={`/catalog/${product._id}`}
+      href={`/catalog/detail?id=${product._id}`}
       className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
     >
       {(product.images ?? [])[0] ? (
